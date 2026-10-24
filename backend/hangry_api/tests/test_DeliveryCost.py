@@ -1,37 +1,21 @@
+from types import SimpleNamespace
+
+import pytest
+
 from api.controllers import Delivery
-from django_mock_queries.query import MockSet, MockModel
 
-def test_LotsOfItems():
-  #Arrange
-  order = MockSet()
-  order.add(MockModel(quantity=5))
-  order.add(MockModel(quantity=5))
-  order.add(MockModel(quantity=5))
-  delivery_distance = 6
-  #Act
-  cost = Delivery.calculate(order,delivery_distance)
-  #Assert
-  assert cost == 7.5
 
-def test_MiddleOfTheRoadItems():
-  #Arrange
-  order = MockSet()
-  order.add(MockModel(quantity=2))
-  order.add(MockModel(quantity=2))
-  order.add(MockModel(quantity=2))
-  delivery_distance = 4
-  #Act
-  cost = Delivery.calculate(order,delivery_distance)
-  #Assert
-  assert cost == 5
+@pytest.mark.parametrize(
+    ("quantities", "distance", "expected_fee"),
+    [
+        ([2, 2], 3, 3.50),       # Default fee
+        ([2, 2, 2], 4, 5.00),    # Medium order and distance
+        ([5, 5, 1], 6, 7.50),    # Large order and distance
+        ([5, 5], 6, 5.00),       # Exactly 10 items does not qualify for high fee
+        ([2, 2, 2], 3, 3.50),    # Distance must be greater than 3 for medium fee
+    ],
+)
+def test_delivery_fee(quantities, distance, expected_fee):
+    order = [SimpleNamespace(quantity=quantity) for quantity in quantities]
 
-def test_LittleItems():
-  #Arrange
-    order = MockSet()
-    order.add(MockModel(quantity=2))
-    order.add(MockModel(quantity=2))
-    delivery_distance = 3
-  #Act
-    cost = Delivery.calculate(order,delivery_distance)
-  #Assert
-    assert cost == 2.5
+    assert Delivery.calculate(order, distance) == expected_fee
