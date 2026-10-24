@@ -10,6 +10,7 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    Unit_test: ubuntu-latest 
     steps:
       - uses: actions/checkout@v4
       - name: Disable Debug
@@ -20,7 +21,7 @@ jobs:
       - name: '**PLACEHOLDER** Deploy to Elastic Beanstalk'
         run: echo Placeholder for Deployment
 
-    Unit_test: ubuntu-latest 
+
   steps: 
     - name: Checkout
       uses: actions/checkout@v7.0.1
